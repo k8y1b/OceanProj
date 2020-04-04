@@ -1,3 +1,10 @@
+package model;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -141,13 +148,10 @@ public class DatabaseConnectionHandler {
     public boolean login(String username, String password) {
         try {
             if (connection != null) {
-                connection.close();
+                return true;
             }
-
             connection = DriverManager.getConnection(ORACLE_URL, username, password);
             connection.setAutoCommit(false);
-
-            System.out.println("\nConnected to Oracle!");
             return true;
         } catch (SQLException e) {
             System.out.println(EXCEPTION_TAG + " " + e.getMessage());
@@ -167,11 +171,20 @@ public class DatabaseConnectionHandler {
         //dropBranchTableIfExists();
 
         try {
-            Statement stmt = connection.createStatement();
-            //stmt.executeUpdate("CREATE TABLE branch (branch_id integer PRIMARY KEY, branch_name varchar2(20) not null, branch_addr varchar2(50), branch_city varchar2(20) not null, branch_phone integer)");
-            stmt.close();
-        } catch (SQLException e) {
-            System.out.println(EXCEPTION_TAG + " " + e.getMessage());
+            String statements = new String(Files.readAllBytes(Paths.get("resources/sql/create.sql")));
+            for (String s : statements.split(";")) {
+                if(s.trim().length() > 0) {
+                    try {
+                        Statement stmt = connection.createStatement();
+                        stmt.execute(s);
+                        stmt.close();
+                    } catch (SQLException e) {
+                        System.out.println(EXCEPTION_TAG + " " + e.getMessage());
+                    }
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
