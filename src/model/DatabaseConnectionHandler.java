@@ -2,15 +2,11 @@ package model;
 
 import javafx.util.Pair;
 
-import java.beans.PropertyChangeListener;
-import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.EventListener;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -25,7 +21,6 @@ public class DatabaseConnectionHandler {
     // Use this version of the ORACLE_URL if you are tunneling into the undergrad servers
     private static final String ORACLE_URL = "jdbc:oracle:thin:@localhost:1522:stu";
     private static final String EXCEPTION_TAG = "[EXCEPTION]";
-    private static final String WARNING_TAG = "[WARNING]";
     private String username = "";
 
     private Connection connection = null;
@@ -155,7 +150,45 @@ public class DatabaseConnectionHandler {
 //        }
 //    }
 
-    public void insert(String tableName, List<Pair<Integer, String>> values) {
+    private void insertData(PreparedStatement ps, List<TableEntry> values) throws SQLException {
+        for(int i=1; i <= values.size(); i++) {
+            TableEntry entry = values.get(i-1);
+            switch(entry.getType()) {
+                case Types.INTEGER:
+                    ps.setInt(i, Integer.parseInt(entry.getContents()));
+                    break;
+                case Types.CHAR:
+                    ps.setString(i, entry.getContents());
+                    break;
+                case Types.NUMERIC:
+                case Types.DOUBLE:
+                    ps.setDouble(i, Double.parseDouble(entry.getContents()));
+                    break;
+            }
+        }
+    }
+
+    public void delete(String tableName, List<TableEntry> values) {
+        List<String> equals = new ArrayList<>();
+        for (TableEntry value : values) {
+            if(value.getType() == 1)
+                equals.add(value.getColumnName()+" LIKE (?)");
+            else
+                equals.add(value.getColumnName()+"=(?)");
+        }
+        try {
+            PreparedStatement ps = connection.prepareStatement("DELETE FROM " + tableName + " WHERE "+String.join(",",equals));
+            insertData(ps, values);
+            ps.executeUpdate();
+            connection.commit();
+            ps.close();
+        } catch (SQLException e) {
+            System.out.println(EXCEPTION_TAG + " " + e.getMessage());
+            rollbackConnection();
+        }
+    }
+
+    public void insert(String tableName, List<TableEntry> values) {
         StringBuilder questionMarks = new StringBuilder();
         questionMarks.append("(");
         for(int i=0; i < values.size()-1; i++) {
@@ -164,21 +197,7 @@ public class DatabaseConnectionHandler {
         questionMarks.append("?)");
         try {
             PreparedStatement ps = connection.prepareStatement("INSERT INTO " + tableName + " VALUES "+questionMarks.toString());
-            for(int i=1; i <= values.size(); i++) {
-                Pair<Integer, String> pair = values.get(i-1);
-                switch(pair.getKey()) {
-                    case Types.INTEGER:
-                        ps.setInt(i, Integer.parseInt(pair.getValue()));
-                        break;
-                    case Types.CHAR:
-                        ps.setString(i, pair.getValue());
-                        break;
-                    case Types.NUMERIC:
-                    case Types.DOUBLE:
-                        ps.setDouble(i, Double.parseDouble(pair.getValue()));
-                        break;
-                }
-            }
+            insertData(ps, values);
             ps.executeUpdate();
             connection.commit();
 

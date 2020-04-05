@@ -23,7 +23,7 @@
        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
      </columnConstraints>
    </GridPane>
-   <Button fx:id="insert" alignment="TOP_LEFT" mnemonicParsing="false" text="Insert" GridPane.columnIndex="1" GridPane.rowIndex="1" GridPane.valignment="TOP">
+   <Button fx:id="button" alignment="TOP_LEFT" mnemonicParsing="false" text="Insert" GridPane.columnIndex="1" GridPane.rowIndex="1" GridPane.valignment="TOP">
       <font>
          <Font size="18.0" />
       </font>

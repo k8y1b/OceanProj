@@ -52,13 +52,13 @@ depth NUMBER(10,2),
 temperature NUMBER(10,2),
 precipitation NUMBER(10,2),
 PRIMARY KEY (lat,lon),
-FOREIGN KEY (temperature,precipitation) REFERENCES Climate
+FOREIGN KEY (temperature,precipitation) REFERENCES Climate ON DELETE CASCADE
 );
 CREATE TABLE AnimalEatsAnimal(
 species1 CHAR(31),
 species2 CHAR(31),
-FOREIGN KEY (species1) REFERENCES Animal(species),
-FOREIGN KEY (species2) REFERENCES Animal(species),
+FOREIGN KEY (species1) REFERENCES Animal(species) ON DELETE CASCADE,
+FOREIGN KEY (species2) REFERENCES Animal(species) ON DELETE CASCADE,
 PRIMARY KEY (species1, species2)
 );
 CREATE TABLE Habitat(
@@ -66,7 +66,7 @@ sunlight NUMBER(10,2),
 depth NUMBER(10,2),
 lat NUMBER(10,2),
 lon NUMBER(10,2),
-FOREIGN KEY (lat,lon) REFERENCES Location,
+FOREIGN KEY (lat,lon) REFERENCES Location ON DELETE CASCADE,
 PRIMARY KEY (lat,lon,depth)
 );
 CREATE TABLE Plant (
@@ -76,21 +76,21 @@ color CHAR(31),
 depth NUMBER(10,2),
 lat NUMBER(10,2),
 lon NUMBER(10,2),
-FOREIGN KEY (lat,lon,depth) REFERENCES Habitat
+FOREIGN KEY (lat,lon,depth) REFERENCES Habitat ON DELETE CASCADE
 );
 CREATE TABLE AnimalEatsPlant(
 species CHAR(31),
 name CHAR(31),
-FOREIGN KEY (species) REFERENCES Animal,
-FOREIGN KEY (name) REFERENCES PLANT,
+FOREIGN KEY (species) REFERENCES Animal ON DELETE CASCADE,
+FOREIGN KEY (name) REFERENCES PLANT ON DELETE CASCADE,
 PRIMARY KEY (species, name)
 );
 CREATE TABLE AnimalEatsSingleCell (
 species CHAR(31),
 name CHAR(31),
 PRIMARY KEY (species, name),
-FOREIGN KEY (species) REFERENCES Animal,
-FOREIGN KEY (name) REFERENCES SingleCellOrganism
+FOREIGN KEY (species) REFERENCES Animal ON DELETE CASCADE,
+FOREIGN KEY (name) REFERENCES SingleCellOrganism ON DELETE CASCADE
 );
 CREATE TABLE AnimalInhabits (
 species CHAR(31),
@@ -98,31 +98,31 @@ depth NUMBER(10,2),
 lat NUMBER(10,2),
 lon NUMBER(10,2),
 PRIMARY KEY (species, depth, lat, lon),
-FOREIGN KEY (species) REFERENCES Animal,
-FOREIGN KEY (lat,lon,depth) REFERENCES Habitat
+FOREIGN KEY (species) REFERENCES Animal ON DELETE CASCADE,
+FOREIGN KEY (lat,lon,depth) REFERENCES Habitat ON DELETE CASCADE
 );
 CREATE TABLE FishingMethodCatches (
 species CHAR(31),
 methodName CHAR(31),
 PRIMARY KEY (species, methodName),
-FOREIGN KEY (species) REFERENCES Animal,
-FOREIGN KEY (methodName) REFERENCES FishingMethod
+FOREIGN KEY (species) REFERENCES Animal ON DELETE CASCADE,
+FOREIGN KEY (methodName) REFERENCES FishingMethod ON DELETE CASCADE
 );
 CREATE TABLE MethodUsedAt (
 methodName CHAR(31),
 lat NUMBER(10,2),
 lon NUMBER(10,2),
 PRIMARY KEY (methodName, lat, lon),
-FOREIGN KEY (lat,lon) REFERENCES Location,
-FOREIGN KEY (methodName) references FishingMethod
+FOREIGN KEY (lat,lon) REFERENCES Location ON DELETE CASCADE,
+FOREIGN KEY (methodName) references FishingMethod ON DELETE CASCADE
 );
 CREATE TABLE LocationHasCurrent(
 lat NUMBER(10,2),
 lon NUMBER(10,2),
 id INTEGER,
 PRIMARY KEY(lat, lon, id),
-FOREIGN KEY (lat, lon) REFERENCES Location,
-FOREIGN KEY (id) REFERENCES "CURRENT"
+FOREIGN KEY (lat, lon) REFERENCES Location ON DELETE CASCADE,
+FOREIGN KEY (id) REFERENCES "CURRENT" ON DELETE CASCADE
 );
 
 INSERT INTO Climate VALUES (10.5, 1757, 0.24);

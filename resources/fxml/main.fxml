@@ -11,8 +11,15 @@
                 <fx:include source="insert.fxml"/>
             </AnchorPane>
         </Tab>
+        <Tab text="Delete">
+            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                <fx:include source="delete.fxml"/>
+            </AnchorPane>
+        </Tab>
         <Tab text="Update">
-            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                <fx:include source="update.fxml"/>
+            </AnchorPane>
         </Tab>
     </TabPane>
 </AnchorPane>
