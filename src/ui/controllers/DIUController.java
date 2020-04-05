@@ -30,28 +30,31 @@ public abstract class DIUController {
         DatabaseConnectionHandler handler = DatabaseConnectionHandler.getInstance();
         handler.onSetup((tables)-> tableList.getItems().setAll(tables));
         tableList.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-        tableList.getSelectionModel().selectedItemProperty().addListener((o, oldVal, newVal) -> {
-            try {
-                List<Pair<String, Integer>> columns = handler.getColumns(newVal);
-                prompts.getChildren().clear();
-                data.clear();
-                int row = 0;
-                for (Pair<String, Integer> column : columns) {
-                    Pair<Label, TextField> pair = getColumnEntry(column.getKey(), column.getValue());
-                    data.add(new ColumnListing(column.getKey(), column.getValue(), pair.getValue()));
-                    prompts.addRow(row, pair.getKey(), pair.getValue());
-                    row++;
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        });
-
+        fillPrompts(prompts, data);
         button.setOnAction(event -> {
             runAction();
             for (Node child : prompts.getChildren()) {
                 if(child instanceof TextField)
                     ((TextField) child).clear();
+            }
+        });
+    }
+
+    void fillPrompts(GridPane grid, List<ColumnListing> storage) {
+        tableList.getSelectionModel().selectedItemProperty().addListener((o, oldVal, newVal) -> {
+            try {
+                List<Pair<String, Integer>> columns = DatabaseConnectionHandler.getInstance().getColumns(newVal);
+                grid.getChildren().clear();
+                storage.clear();
+                int row = 0;
+                for (Pair<String, Integer> column : columns) {
+                    Pair<Label, TextField> pair = getColumnEntry(column.getKey(), column.getValue());
+                    storage.add(new ColumnListing(column.getKey(), column.getValue(), pair.getValue()));
+                    grid.addRow(row, pair.getKey(), pair.getValue());
+                    row++;
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
         });
     }

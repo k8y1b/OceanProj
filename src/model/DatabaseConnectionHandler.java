@@ -52,117 +52,23 @@ public class DatabaseConnectionHandler {
         }
     }
 
-//    public void deleteBranch(int branchId) {
-//        try {
-//            PreparedStatement ps = connection.prepareStatement("DELETE FROM branch WHERE branch_id = ?");
-//            ps.setInt(1, branchId);
-//
-//            int rowCount = ps.executeUpdate();
-//            if (rowCount == 0) {
-//                System.out.println(WARNING_TAG + " Branch " + branchId + " does not exist!");
-//            }
-//
-//            connection.commit();
-//
-//            ps.close();
-//        } catch (SQLException e) {
-//            System.out.println(EXCEPTION_TAG + " " + e.getMessage());
-//            rollbackConnection();
-//        }
-//    }
-
-//    public void insertBranch(BranchModel model) {
-//        try {
-//            PreparedStatement ps = connection.prepareStatement("INSERT INTO branch VALUES (?,?,?,?,?)");
-//            ps.setInt(1, model.getId());
-//            ps.setString(2, model.getName());
-//            ps.setString(3, model.getAddress());
-//            ps.setString(4, model.getCity());
-//            if (model.getPhoneNumber() == 0) {
-//                ps.setNull(5, java.sql.Types.INTEGER);
-//            } else {
-//                ps.setInt(5, model.getPhoneNumber());
-//            }
-//
-//            ps.executeUpdate();
-//            connection.commit();
-//
-//            ps.close();
-//        } catch (SQLException e) {
-//            System.out.println(EXCEPTION_TAG + " " + e.getMessage());
-//            rollbackConnection();
-//        }
-//    }
-
-//    public BranchModel[] getBranchInfo() {
-//        ArrayList<BranchModel> result = new ArrayList<BranchModel>();
-//
-//        try {
-//            Statement stmt = connection.createStatement();
-//            ResultSet rs = stmt.executeQuery("SELECT * FROM branch");
-//
-////    		// get info on ResultSet
-////    		ResultSetMetaData rsmd = rs.getMetaData();
-////
-////    		System.out.println(" ");
-////
-////    		// display column names;
-////    		for (int i = 0; i < rsmd.getColumnCount(); i++) {
-////    			// get column name and print it
-////    			System.out.printf("%-15s", rsmd.getColumnName(i + 1));
-////    		}
-//
-//            while(rs.next()) {
-//                BranchModel model = new BranchModel(rs.getString("branch_addr"),
-//                        rs.getString("branch_city"),
-//                        rs.getInt("branch_id"),
-//                        rs.getString("branch_name"),
-//                        rs.getInt("branch_phone"));
-//                result.add(model);
-//            }
-//
-//            rs.close();
-//            stmt.close();
-//        } catch (SQLException e) {
-//            System.out.println(EXCEPTION_TAG + " " + e.getMessage());
-//        }
-//
-//        return result.toArray(new BranchModel[result.size()]);
-//    }
-
-//    public void updateBranch(int id, String name) {
-//        try {
-//            PreparedStatement ps = connection.prepareStatement("UPDATE branch SET branch_name = ? WHERE branch_id = ?");
-//            ps.setString(1, name);
-//            ps.setInt(2, id);
-//
-//            int rowCount = ps.executeUpdate();
-//            if (rowCount == 0) {
-//                System.out.println(WARNING_TAG + " Branch " + id + " does not exist!");
-//            }
-//
-//            connection.commit();
-//
-//            ps.close();
-//        } catch (SQLException e) {
-//            System.out.println(EXCEPTION_TAG + " " + e.getMessage());
-//            rollbackConnection();
-//        }
-//    }
-
     private void insertData(PreparedStatement ps, List<TableEntry> values) throws SQLException {
+            insertData(ps, values, 0);
+    }
+
+    private void insertData(PreparedStatement ps, List<TableEntry> values, int offset) throws SQLException {
         for(int i=1; i <= values.size(); i++) {
             TableEntry entry = values.get(i-1);
             switch(entry.getType()) {
                 case Types.INTEGER:
-                    ps.setInt(i, Integer.parseInt(entry.getContents()));
+                    ps.setInt(i+offset, Integer.parseInt(entry.getContents()));
                     break;
                 case Types.CHAR:
-                    ps.setString(i, entry.getContents());
+                    ps.setString(i+offset, entry.getContents());
                     break;
                 case Types.NUMERIC:
                 case Types.DOUBLE:
-                    ps.setDouble(i, Double.parseDouble(entry.getContents()));
+                    ps.setDouble(i+offset, Double.parseDouble(entry.getContents()));
                     break;
             }
         }
@@ -201,6 +107,34 @@ public class DatabaseConnectionHandler {
             ps.executeUpdate();
             connection.commit();
 
+            ps.close();
+        } catch (SQLException e) {
+            System.out.println(EXCEPTION_TAG + " " + e.getMessage());
+            rollbackConnection();
+        }
+    }
+
+    public void update(String tableName, List<TableEntry> dataList, List<TableEntry> whereList) {
+        List<String> updateData = new ArrayList<>();
+        for (TableEntry tableEntry : dataList) {
+            updateData.add(tableEntry.getColumnName() + "=(?)");
+        }
+
+        List<String> equals = new ArrayList<>();
+        for (TableEntry value : whereList) {
+            if(value.getType() == 1)
+                equals.add(value.getColumnName()+" LIKE (?)");
+            else
+                equals.add(value.getColumnName()+"=(?)");
+        }
+        try {
+            PreparedStatement ps = connection.prepareStatement("UPDATE " + tableName
+                    + " SET "+String.join(",",updateData)
+                    + " WHERE "+String.join(",",equals));
+            insertData(ps, dataList);
+            insertData(ps, whereList, dataList.size());
+            ps.executeUpdate();
+            connection.commit();
             ps.close();
         } catch (SQLException e) {
             System.out.println(EXCEPTION_TAG + " " + e.getMessage());
