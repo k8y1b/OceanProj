@@ -10,7 +10,7 @@ import java.util.Optional;
 
 public class Controller {
 
-    DatabaseConnectionHandler handler = new DatabaseConnectionHandler();
+    DatabaseConnectionHandler handler = DatabaseConnectionHandler.getInstance();
 
     @FXML
     private void initialize() {

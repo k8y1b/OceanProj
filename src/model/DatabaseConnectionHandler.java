@@ -1,17 +1,19 @@
 package model;
 
+import javafx.util.Pair;
+
+import java.beans.PropertyChangeListener;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
+import java.util.EventListener;
+import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 
 /**
@@ -24,10 +26,18 @@ public class DatabaseConnectionHandler {
     private static final String ORACLE_URL = "jdbc:oracle:thin:@localhost:1522:stu";
     private static final String EXCEPTION_TAG = "[EXCEPTION]";
     private static final String WARNING_TAG = "[WARNING]";
+    private String username = "";
 
     private Connection connection = null;
 
-    public DatabaseConnectionHandler() {
+    private static DatabaseConnectionHandler instance;
+    static{ instance = new DatabaseConnectionHandler(); }
+
+    public static DatabaseConnectionHandler getInstance() {
+        return instance;
+    }
+
+    private DatabaseConnectionHandler() {
         try {
             // Load the Oracle JDBC driver
             // Note that the path could change for new drivers
@@ -152,6 +162,7 @@ public class DatabaseConnectionHandler {
             }
             connection = DriverManager.getConnection(ORACLE_URL, username, password);
             connection.setAutoCommit(false);
+            this.username = username;
             return true;
         } catch (SQLException e) {
             System.out.println(EXCEPTION_TAG + " " + e.getMessage());
@@ -168,10 +179,16 @@ public class DatabaseConnectionHandler {
     }
 
     public void databaseSetup() {
-        //dropBranchTableIfExists();
+        runFile("resources/sql/drop.sql", (s,e)->{});
+        runFile("resources/sql/create.sql", (s,e) -> {
+            System.out.println(s);
+            System.out.println(EXCEPTION_TAG + " " + e.getMessage());
+        });
+    }
 
+    private void runFile(String filepath, BiConsumer<String, SQLException> errorHandler) {
         try {
-            String statements = new String(Files.readAllBytes(Paths.get("resources/sql/create.sql")));
+            String statements = new String(Files.readAllBytes(Paths.get(filepath)));
             for (String s : statements.split(";")) {
                 if(s.trim().length() > 0) {
                     try {
@@ -179,31 +196,48 @@ public class DatabaseConnectionHandler {
                         stmt.execute(s);
                         stmt.close();
                     } catch (SQLException e) {
-                        System.out.println(EXCEPTION_TAG + " " + e.getMessage());
+                        errorHandler.accept(s, e);
                     }
                 }
             }
+            try {
+                List<String> tables = getTables();
+                for (Consumer<List<String>> listener : listeners) {
+                    listener.accept(tables);
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-//    private void dropBranchTableIfExists() {
-//        try {
-//            Statement stmt = connection.createStatement();
-//            ResultSet rs = stmt.executeQuery("select table_name from user_tables");
-//
-//            while(rs.next()) {
-//                if(rs.getString(1).toLowerCase().equals("branch")) {
-//                    stmt.execute("DROP TABLE branch");
-//                    break;
-//                }
-//            }
-//
-//            rs.close();
-//            stmt.close();
-//        } catch (SQLException e) {
-//            System.out.println(EXCEPTION_TAG + " " + e.getMessage());
-//        }
-//    }
+    private List<String> getTables() throws SQLException {
+        DatabaseMetaData md = connection.getMetaData();
+        ResultSet rs = md.getTables(null, username.toUpperCase(), "%", null);
+        List<String> tables = new ArrayList<>();
+        while (rs.next()) {
+            tables.add(rs.getString(3));
+        }
+        return tables;
+    }
+
+    private List<Consumer<List<String>>> listeners = new ArrayList<>();
+    public void onSetup(Consumer<List<String>> listener) {
+            listeners.add(listener);
+    }
+
+    public List<Pair<String, Integer>> getColumns(String tableName) throws SQLException {
+        Statement statement = connection.createStatement();
+        ResultSet resultSet = statement.executeQuery("SELECT * FROM " + tableName);
+        ResultSetMetaData md = resultSet.getMetaData();
+
+        List<Pair<String, Integer>> columns = new ArrayList<>();
+        for(int i = 0; i < md.getColumnCount(); i++) {
+            columns.add(new Pair<>(md.getColumnName(i), md.getColumnType(i)));
+        }
+        return columns;
+    }
 }
