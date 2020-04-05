@@ -1,0 +1,2 @@
+Select name
+FROM Location;

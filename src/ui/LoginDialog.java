@@ -1,5 +1,6 @@
 package ui;
 
+import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
@@ -39,6 +40,7 @@ public class LoginDialog extends Dialog<Pair<String, String>> {
         });
 
         getDialogPane().setContent(grid);
+        Platform.runLater(username::requestFocus);
 
         setResultConverter(button -> {
             if(button.equals(login)) {

@@ -155,6 +155,40 @@ public class DatabaseConnectionHandler {
 //        }
 //    }
 
+    public void insert(String tableName, List<Pair<Integer, String>> values) {
+        StringBuilder questionMarks = new StringBuilder();
+        questionMarks.append("(");
+        for(int i=0; i < values.size()-1; i++) {
+            questionMarks.append("?,");
+        }
+        questionMarks.append("?)");
+        try {
+            PreparedStatement ps = connection.prepareStatement("INSERT INTO " + tableName + " VALUES "+questionMarks.toString());
+            for(int i=1; i <= values.size(); i++) {
+                Pair<Integer, String> pair = values.get(i-1);
+                switch(pair.getKey()) {
+                    case Types.INTEGER:
+                        ps.setInt(i, Integer.parseInt(pair.getValue()));
+                        break;
+                    case Types.CHAR:
+                        ps.setString(i, pair.getValue());
+                        break;
+                    case Types.NUMERIC:
+                    case Types.DOUBLE:
+                        ps.setDouble(i, Double.parseDouble(pair.getValue()));
+                        break;
+                }
+            }
+            ps.executeUpdate();
+            connection.commit();
+
+            ps.close();
+        } catch (SQLException e) {
+            System.out.println(EXCEPTION_TAG + " " + e.getMessage());
+            rollbackConnection();
+        }
+    }
+
     public boolean login(String username, String password) {
         try {
             if (connection != null) {
@@ -231,11 +265,11 @@ public class DatabaseConnectionHandler {
 
     public List<Pair<String, Integer>> getColumns(String tableName) throws SQLException {
         Statement statement = connection.createStatement();
-        ResultSet resultSet = statement.executeQuery("SELECT * FROM " + tableName);
+        ResultSet resultSet = statement.executeQuery("SELECT * FROM \"" + tableName + "\"");
         ResultSetMetaData md = resultSet.getMetaData();
 
         List<Pair<String, Integer>> columns = new ArrayList<>();
-        for(int i = 0; i < md.getColumnCount(); i++) {
+        for(int i = 1; i <= md.getColumnCount(); i++) {
             columns.add(new Pair<>(md.getColumnName(i), md.getColumnType(i)));
         }
         return columns;
