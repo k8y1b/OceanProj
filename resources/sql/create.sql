@@ -261,4 +261,35 @@ INSERT INTO LocationHasCurrent VALUES (-133.1308, 54.2416, 3);
 INSERT INTO LocationHasCurrent VALUES (-127.3332, 50.7195, 4);
 INSERT INTO LocationHasCurrent VALUES (-127.3332, 50.7195, 5);
 
+SELECT species
+FROM Animal
+WHERE speed = 0;
+
+Select name
+FROM Location;
+
+Select species, name
+FROM AnimalInhabits AI JOIN Location L
+ON AI.lat = L.lat AND AI.lon = L.lon;
+
+Select species
+FROM Animal
+WHERE speed = MAX(speed);
+
+SELECT MAX(speed), species
+FROM Invertebrate JOIN Animal A on Invertebrate.species = A.species
+GROUP BY numBodyParts;
+
+SELECT species
+FROM AnimalInhabits, Location
+EXCEPT (
+SELECT
+)
+
+SELECT species FROM AnimalInhabits as ai
+WHERE NOT EXISTS (
+(SELECT lat, lon FROM Location)
+EXCEPT
+(SELECT ah.lat, ah.lon FROM  AnimalInhabits as ah WHERE ai.lat = ah.lat AND ai.lon = ah.lon ) );
+
 
