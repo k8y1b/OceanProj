@@ -75,6 +75,7 @@ public class DatabaseConnectionHandler {
     }
 
     public void delete(String tableName, List<TableEntry> values) {
+        if(tableName == null) return;
         List<String> equals = new ArrayList<>();
         for (TableEntry value : values) {
             if(value.getType() == 1)
@@ -95,6 +96,7 @@ public class DatabaseConnectionHandler {
     }
 
     public void insert(String tableName, List<TableEntry> values) {
+        if(tableName == null) return;
         StringBuilder questionMarks = new StringBuilder();
         questionMarks.append("(");
         for(int i=0; i < values.size()-1; i++) {
@@ -115,6 +117,7 @@ public class DatabaseConnectionHandler {
     }
 
     public void update(String tableName, List<TableEntry> dataList, List<TableEntry> whereList) {
+        if(tableName == null) return;
         List<String> updateData = new ArrayList<>();
         for (TableEntry tableEntry : dataList) {
             updateData.add(tableEntry.getColumnName() + "=(?)");
@@ -222,8 +225,9 @@ public class DatabaseConnectionHandler {
     }
 
     public List<Pair<String, Integer>> getColumns(String tableName) throws SQLException {
+        if(tableName == null) return null;
         Statement statement = connection.createStatement();
-        ResultSet resultSet = statement.executeQuery("SELECT * FROM \"" + tableName + "\"");
+        @SuppressWarnings("SqlResolve") ResultSet resultSet = statement.executeQuery("SELECT * FROM \"" + tableName + "\"");
         ResultSetMetaData md = resultSet.getMetaData();
 
         List<Pair<String, Integer>> columns = new ArrayList<>();
@@ -231,5 +235,11 @@ public class DatabaseConnectionHandler {
             columns.add(new Pair<>(md.getColumnName(i), md.getColumnType(i)));
         }
         return columns;
+    }
+
+    public ResultSet runParametrizedQuery(String query, List<TableEntry> list) throws SQLException {
+        PreparedStatement ps = connection.prepareStatement(query);
+        insertData(ps, list);
+        return ps.executeQuery();
     }
 }

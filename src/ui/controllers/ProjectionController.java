@@ -17,10 +17,10 @@ public class ProjectionController extends QueryController {
     @Override
     void runAction() {
         StringBuilder query = new StringBuilder();
-        query.append("SELECT (");
+        query.append("SELECT ");
         query.append(
-            checkboxes.stream().filter(p->p.getValue().isSelected()).map(Pair::getKey).collect(Collectors.joining(","))
-        ).append(") FROM ")
+            checkboxes.stream().filter(p->p.getValue().isSelected()).map(Pair::getKey).collect(Collectors.joining(", "))
+        ).append("\n FROM ")
         .append(tableList.getSelectionModel().getSelectedItem());
         try {
             ResultSet resultSet = DatabaseConnectionHandler.getInstance().runQuery(query.toString());

@@ -1,2 +1,0 @@
-Select name
-FROM Location;
