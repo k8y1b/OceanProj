@@ -243,7 +243,13 @@ INSERT INTO AnimalInhabits VALUES ('King Crab', 350, -123.2498, 49.4593);
 INSERT INTO AnimalInhabits VALUES ('California Spiny Lobster', 125, -123.8930, 49.7367);
 INSERT INTO AnimalInhabits VALUES ('Chinook Salmon', 80, -124.1748, 49.7796);
 INSERT INTO AnimalInhabits VALUES ('Coho Salmon', 80, -124.1748, 49.7796);
+INSERT INTO AnimalInhabits VALUES ('Coho Salmon', 125, -123.8930, 49.7367);
 INSERT INTO AnimalInhabits VALUES ('Harbour Seal', 0, -124.4217, 48.5644);
+INSERT INTO AnimalInhabits VALUES ('Zooplankton', 350, -123.2498, 49.4593);
+INSERT INTO AnimalInhabits VALUES ('Zooplankton', 125, -123.8930, 49.7367);
+INSERT INTO AnimalInhabits VALUES ('Zooplankton', 80, -124.1748, 49.7796);
+INSERT INTO AnimalInhabits VALUES ('Zooplankton', 15, -123.5909, 49.0133);
+INSERT INTO AnimalInhabits VALUES ('Zooplankton', 0, -124.4217, 48.5644);
 
 INSERT INTO FishingMethodCatches VALUES ('Coho Salmon', 'Mooching');
 INSERT INTO FishingMethodCatches VALUES ('Chinook Salmon', 'Mooching');

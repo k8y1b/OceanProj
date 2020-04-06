@@ -26,5 +26,10 @@
                 <fx:include source="projection.fxml"/>
             </AnchorPane>
         </Tab>
+        <Tab text="Static Queries">
+            <AnchorPane minHeight="0.0" minWidth="0.0">
+                <fx:include source="static.fxml"/>
+            </AnchorPane>
+        </Tab>
     </TabPane>
 </AnchorPane>

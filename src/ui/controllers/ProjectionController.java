@@ -27,7 +27,7 @@ public class ProjectionController extends QueryController {
         .append(tableList.getSelectionModel().getSelectedItem());
         try {
             ResultSet resultSet = DatabaseConnectionHandler.getInstance().runQuery(query.toString());
-            displayResults(resultSet);
+            displayResults(results, resultSet);
         } catch (SQLException e) {
             e.printStackTrace();
         }

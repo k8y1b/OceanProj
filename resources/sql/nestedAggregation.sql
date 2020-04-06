@@ -1,3 +1,3 @@
-SELECT MAX(speed), species
-FROM Invertebrate JOIN Animal A on Invertebrate.species = A.species
-GROUP BY numBodyParts;
+SELECT I.numBodyParts, AVG(A.speed)
+FROM Invertebrate I JOIN Animal A on I.species = A.species
+GROUP BY I.numBodyParts

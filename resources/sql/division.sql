@@ -1,5 +1,6 @@
-SELECT species FROM AnimalInhabits as ai
+SELECT DISTINCT ai.species
+FROM AnimalInhabits ai
 WHERE NOT EXISTS (
 (SELECT lat, lon FROM Location)
-EXCEPT
-(SELECT ah.lat, ah.lon FROM  AnimalInhabits as ah WHERE ai.lat = ah.lat AND ai.lon = ah.lon ) );
+MINUS
+(SELECT ah.lat, ah.lon FROM AnimalInhabits ah WHERE ai.species = ah.species ) )

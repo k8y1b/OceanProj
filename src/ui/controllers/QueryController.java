@@ -29,7 +29,7 @@ public abstract class QueryController extends DIUController {
     * Some help got from
     * https://stackoverflow.com/questions/18941093/how-to-fill-up-a-tableview-with-database-data
     * */
-    void displayResults(ResultSet rs) throws SQLException {
+    static void displayResults(TableView<ObservableList<String>> results, ResultSet rs) throws SQLException {
         ResultSetMetaData md = rs.getMetaData();
 
         results.getItems().clear();

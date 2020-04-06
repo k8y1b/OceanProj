@@ -1,3 +1,3 @@
-Select species
-FROM Animal
-WHERE speed = MAX(speed);
+SELECT AVG(Loc.temperature)
+FROM Location Loc
+WHERE Loc.depth < 100
