@@ -1,14 +1,11 @@
 package ui.controllers;
 
-import javafx.scene.Node;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.util.Pair;
 import model.ColumnListing;
 import model.DatabaseConnectionHandler;
-import model.TableEntry;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -38,22 +35,25 @@ public class ProjectionController extends QueryController {
     void fillPrompts(GridPane grid, List<ColumnListing> storage) {
         tableList.getSelectionModel().selectedItemProperty().addListener((o, oldVal, newVal) -> {
             try {
-                List<Pair<String, Integer>> columns = DatabaseConnectionHandler.getInstance().getColumns(newVal);
-                grid.getChildren().clear();
-                checkboxes.clear();
-                int row = 0;
-                for (Pair<String, Integer> column : columns) {
-                    Label label = new Label(column.getKey());
-                    CheckBox checkBox = new CheckBox();
-                    checkBox.setSelected(false);
-                    checkBox.setAllowIndeterminate(false);
-                    grid.addRow(row, label, checkBox);
-                    checkboxes.add(new Pair<>(column.getKey(), checkBox));
-                    row++;
-                }
+                addCheckboxes(grid, DatabaseConnectionHandler.getInstance().getColumns(newVal));
             } catch (SQLException e) {
                 e.printStackTrace();
             }
         });
+    }
+
+    void addCheckboxes(GridPane grid, List<Pair<String, Integer>> columns) {
+        grid.getChildren().clear();
+        checkboxes.clear();
+        int row = 0;
+        for (Pair<String, Integer> column : columns) {
+            Label label = new Label(column.getKey());
+            CheckBox checkBox = new CheckBox();
+            checkBox.setSelected(false);
+            checkBox.setAllowIndeterminate(false);
+            grid.addRow(row, label, checkBox);
+            checkboxes.add(new Pair<>(column.getKey(), checkBox));
+            row++;
+        }
     }
 }

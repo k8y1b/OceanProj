@@ -26,6 +26,11 @@
                 <fx:include source="projection.fxml"/>
             </AnchorPane>
         </Tab>
+        <Tab text="Join">
+            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                <fx:include source="join.fxml"/>
+            </AnchorPane>
+        </Tab>
         <Tab text="Static Queries">
             <AnchorPane minHeight="0.0" minWidth="0.0">
                 <fx:include source="static.fxml"/>
