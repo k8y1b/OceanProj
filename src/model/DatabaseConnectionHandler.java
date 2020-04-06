@@ -201,6 +201,11 @@ public class DatabaseConnectionHandler {
         }
     }
 
+    public ResultSet runQuery(String query) throws SQLException {
+        Statement stmt = connection.createStatement();
+        return stmt.executeQuery(query);
+    }
+
     private List<String> getTables() throws SQLException {
         DatabaseMetaData md = connection.getMetaData();
         ResultSet rs = md.getTables(null, username.toUpperCase(), "%", null);
